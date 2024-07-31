@@ -1,0 +1,24 @@
+Package: SigGenes
+Title: Automated differential analysis and signature generation for bulk and single-cell data
+Description: Automated differential analysis between groups based on limma-voom and generation of per-group signatures via custom filtering.
+Version: 1.0.0
+Author: Alexander Bender [aut,cre]
+Maintainer: Alexander Bender <atpoint90@gmail.com>
+License: LGPL (>=2)
+Encoding: UTF-8
+Depends:
+  R (>= 4.0),
+Imports: 
+  edgeR, 
+  limma,
+  Matrix,
+  methods,
+  S4Vectors, 
+  scuttle, 
+  SingleCellExperiment,
+  SummarizedExperiment
+Suggests:
+  testthat
+URL: https://github.com/atpoint/SigGenes
+BugReports: https://github.com/atpoint/SigGenes/issues
+RoxygenNote: 7.2.3

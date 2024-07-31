@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+    paths-ignore:
+      - '*.md'
+      - '*.MD'
+      - '*.ignore'
+      - LICENSE
+
+jobs:
+
+  SigGenes:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      # Run everything via the Bioconductor docker image as it has almost all dependencies preinstalled
+      - name: devtools-check-docker
+        run: |
+          bioc_install='BiocManager::install(c("edgeR", "limma", "Matrix", "S4Vectors", "scuttle", "SummarizedExperiment", "SingleCellExperiment"))'
+          dev_check='devtools::check("/SigGenes/")'
+          dev_doc='devtools::document("/SigGenes/")'
+          testthat='testthat::test_file("/SigGenes/tests/testthat/all_tests.R")'
+          docker run -v "$(pwd)":"/SigGenes/" bioconductor/bioconductor_docker:RELEASE_3_18 Rscript --vanilla -e "${bioc_install}; ${dev_check}; ${dev_doc}; ${testthat}"
+          docker run -v "$(pwd)":"/SigGenes/" bioconductor/bioconductor_docker:RELEASE_3_19 Rscript --vanilla -e "${bioc_install}; ${dev_check}; ${dev_doc}; ${testthat}"

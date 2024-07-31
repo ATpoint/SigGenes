@@ -1,0 +1,9 @@
+..R*
+gitHeadInfo.gin
+R/.Rapp.history
+*.DS_*
+.Rproj.user
+.Rhistory
+~*
+*.tar.gz
+.Rproj.user
