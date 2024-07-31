@@ -62,9 +62,9 @@
 #' @importFrom SummarizedExperiment assay assayNames colData
 #' @importFrom scuttle aggregateAcrossCells librarySizeFactors
 #' @importFrom edgeR calcNormFactors DGEList filterByExpr voomLmFit
-#' @importFrom stats model.matrix
+#' @importFrom stats model.matrix as.formula median p.adjust
 #' @importFrom limma contrasts.fit is.fullrank makeContrasts treat topTreat
-#' @importFrom utils combn
+#' @importFrom utils combn head
 #' @importFrom S4Vectors SimpleList
 #' @importFrom methods as is
 #'
