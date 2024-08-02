@@ -43,11 +43,15 @@
 #' sce$donor <- rep(LETTERS[1:4], 250)
 #' res_pairwise <- de_limma(x = sce, aggregate_by = c("group", "donor"),
 #'                          main_covariate = "group", other_covariates = c("donor"))
+#'
 #' res_pairwise_block <- de_limma(x = sce, aggregate_by = c("group", "donor"),
 #'                                main_covariate = "group", block = "donor")
+#'
 #' res_average <- de_limma(x = sce, aggregate_by = c("group", "donor"),
 #'                         main_covariate = "group", other_covariates = c("donor"),
 #'                         mode="average")
+#'
+#' res_singlecell <- de_limma(x = sce, main_covariate = "group")
 #'
 #' @author Alexander Bender
 #'
@@ -130,9 +134,9 @@ de_limma <- function(x, use_assay = "counts", aggregate_by=NULL, use_existing_sf
     sf <- suppressWarnings(sizeFactors(x))
     # scran::convertTo()
     if (!is.null(sf)) {
-      nf <- log(sf/y$samples$lib.size)
+      nf <- log(sf/pb$samples$lib.size)
       nf <- exp(nf - mean(nf))
-      y$samples$norm.factors <- nf
+      pb$samples$norm.factors <- nf
     }
 
     if(use_existing_sf){

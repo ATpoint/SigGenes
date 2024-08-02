@@ -79,11 +79,15 @@ sce$group <- rep(LETTERS[1:4], each=250)
 sce$donor <- rep(LETTERS[1:4], 250)
 res_pairwise <- de_limma(x = sce, aggregate_by = c("group", "donor"),
                          main_covariate = "group", other_covariates = c("donor"))
+
 res_pairwise_block <- de_limma(x = sce, aggregate_by = c("group", "donor"),
                                main_covariate = "group", block = "donor")
+
 res_average <- de_limma(x = sce, aggregate_by = c("group", "donor"),
                         main_covariate = "group", other_covariates = c("donor"),
                         mode="average")
+
+res_singlecell <- de_limma(x = sce, main_covariate = "group")
 
 }
 \references{
