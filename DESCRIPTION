@@ -1,7 +1,7 @@
 Package: SigGenes
 Title: Automated differential analysis and signature generation for bulk and single-cell data
 Description: Automated differential analysis between groups based on limma-voom and generation of per-group signatures via custom filtering.
-Version: 1.0.2
+Version: 1.0.3
 Author: Alexander Bender [aut,cre]
 Maintainer: Alexander Bender <atpoint90@gmail.com>
 License: LGPL (>=2)

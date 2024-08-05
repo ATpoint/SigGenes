@@ -123,39 +123,32 @@ de_limma <- function(x, use_assay = "counts", aggregate_by=NULL, use_existing_sf
   # Aggregate to pseudobulk
   if(!is.null(aggregate_by)){
 
-    pb <- aggregateAcrossCells(x, id=colData(x)[,aggregate_by], use.assay.type="counts")
+    pb <- aggregateAcrossCells(x, id=colData(x)[,aggregate_by], use.assay.type=use_assay)
     pb <- DGEList(counts = assay(pb), samples = data.frame(colData(pb), check.names = FALSE))
     run_norm <- TRUE
 
   } else {
 
-    w <- which(assayNames(x) == "counts")
+    run_norm <- FALSE # means no calcNormFactors
+    w <- which(assayNames(x) == use_assay)
     pb <- DGEList(counts = assay(x, use_assay), samples = data.frame(colData(x), check.names = FALSE))
+
+    # Normalization
     sf <- suppressWarnings(sizeFactors(x))
-    # scran::convertTo()
-    if (!is.null(sf)) {
-      nf <- log(sf/pb$samples$lib.size)
-      nf <- exp(nf - mean(nf))
-      pb$samples$norm.factors <- nf
+    sf_null <- is.null(sf)
+
+    if(sf_null){
+      use_existing_sf <- FALSE
     }
 
-    if(use_existing_sf){
-
-      if(is.null(sizeFactors(x))){
-
-        sf <- librarySizeFactors(x)
-        sizeFactors(x) <- sf
-        run_norm <- FALSE
-
-      }
-
-      run_norm <- FALSE
-
-    } else {
-
-      run_norm <- TRUE
-
+    if(!use_existing_sf){
+      sf <- librarySizeFactors(x)
     }
+
+    # Convert Size factors to normalization factors based on scran::convertTo()
+    nf <- log(sf/pb$samples$lib.size)
+    nf <- exp(nf - mean(nf))
+    pb$samples$norm.factors <- nf
 
   }
 
