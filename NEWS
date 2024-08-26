@@ -1,3 +1,9 @@
+CHANGES IN VERSION 1.0.5
+------------------------
+
+    o option to use limma-trend for testing rather than default limma-voom
+
+
 CHANGES IN VERSION 1.0.4
 ------------------------
 

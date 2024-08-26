@@ -11,11 +11,13 @@ de_limma(
   use_existing_sf = TRUE,
   main_covariate,
   other_covariates = NULL,
+  test_method = c("trend", "voom"),
   block = NULL,
   min_pct = 0,
   min_fc = 1,
   use_weights = FALSE,
   mode = c("pairwise", "average"),
+  use_trend = FALSE,
   use_filterByExpr = FALSE,
   return_object = FALSE,
   delim = "_vs_"
@@ -51,6 +53,8 @@ usually has already been performed. If TRUE and no size factors can be found wil
 \item{mode}{Either "pairwise" to run all pairwise comparisons between `main_covariate` levels,
 or "average" to test each level against the average of all other levels.}
 
+\item{use_trend}{Logical, if TRUE will convert data to logCPM with edgeR first and then use limma-trend for testing.}
+
 \item{use_filterByExpr}{Logical, whether to run \code{filterByExpr} from `edgeR` for prefiltering of counts.
 This makes sense when testing for example bulk RNA-seq data.}
 
@@ -73,21 +77,29 @@ individual results for identical contrasts e.g. A-B / B-A can differ if \code{mi
 the gene with more than \code{min_pct} of cells. If {min_pct} is 0 then these two lists would be the same.
 }
 \examples{
+# Testing on pseudobulk level with limma-voom
 set.seed(1)
-sce <- scuttle::mockSCE(ncells=1000, ngenes=1000, nspikes=0)
-sce$group <- rep(LETTERS[1:4], each=250)
+sce <- scuttle::mockSCE(ncells = 1000, ngenes = 1000, nspikes = 0)
+sce$group <- rep(LETTERS[1:4], each = 250)
 sce$donor <- rep(LETTERS[1:4], 250)
-res_pairwise <- de_limma(x = sce, aggregate_by = c("group", "donor"),
-                         main_covariate = "group", other_covariates = c("donor"))
+res_pairwise <- de_limma(
+  x = sce, aggregate_by = c("group", "donor"),
+  main_covariate = "group", other_covariates = c("donor")
+)
 
-res_pairwise_block <- de_limma(x = sce, aggregate_by = c("group", "donor"),
-                               main_covariate = "group", block = "donor")
+res_pairwise_block <- de_limma(
+  x = sce, aggregate_by = c("group", "donor"),
+  main_covariate = "group", block = "donor"
+)
 
-res_average <- de_limma(x = sce, aggregate_by = c("group", "donor"),
-                        main_covariate = "group", other_covariates = c("donor"),
-                        mode="average")
+res_average <- de_limma(
+  x = sce, aggregate_by = c("group", "donor"),
+  main_covariate = "group", other_covariates = c("donor"),
+  mode = "average"
+)
 
-res_singlecell <- de_limma(x = sce, main_covariate = "group")
+# Testing on single-cell level with limma-trend
+res_singlecell <- de_limma(x = sce, main_covariate = "group", use_trend = TRUE)
 
 }
 \references{
