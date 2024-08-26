@@ -10,6 +10,6 @@ if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
 BiocManager::install()
 
 # Install limma and circtools
-to_install <- c("edgeR", "limma", "Matrix", "S4Vectors", "scuttle", "SummarizedExperiment", "SingleCellExperiment", "atpoint/circtools")
+to_install <- c("edgeR", "limma", "Matrix", "S4Vectors", "scuttle", "SummarizedExperiment", "SingleCellExperiment", "atpoint/SigGenes")
 BiocManager::install(to_install)
 ```
