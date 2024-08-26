@@ -99,12 +99,20 @@ de_limma <- function(x, use_assay = "counts", aggregate_by=NULL, use_existing_sf
   if(!is(use_existing_sf, "logical"))
     stop("use_existing_sf must be logical")
 
-  is_main <- main_covariate %in% colnames(colData(x))
+  is_too_long_main <- length(main_covariate)
+  if(is_too_long_main > 1) stop("main_covariate must be length 1")
+
+  is_main <- all(main_covariate %in% colnames(colData(x)))
   if(!is_main) stop("Not all entries in <main_covariate> are in colData(x)")
 
   if(!is.null(other_covariates)){
-    is_other <- other_covariates %in% colnames(colData(x))
+    is_other <- all(other_covariates %in% colnames(colData(x)))
     if(!is_other) stop("Not all entries in <other_covariates> are in colData(x)")
+  }
+
+  if(!is.null(aggregate_by)){
+    is_agg <- all(aggregate_by %in% colnames(colData(x)))
+    if(!is_agg) stop("Not all entries in <aggregate_by> are in colData(x)")
   }
 
   is_pct <- min_pct >= 0 & is.numeric(min_pct)
@@ -160,8 +168,8 @@ de_limma <- function(x, use_assay = "counts", aggregate_by=NULL, use_existing_sf
   if(max_n == 1) stop("No replication in any group -- DE analysis not possible!")
 
   # Design, allowing any additional covariates
-  others <- if(!is.null(other_covariates)) paste0(" + ", other_covariates) else ""
-  f <- as.formula(paste0("~ 0 + ", main_covariate, others))
+  others <- if(!is.null(other_covariates)) paste(other_covariates, collapse = " + ") else ""
+  f <- as.formula(paste("~ 0", main_covariate, others, sep = "+ "))
   design <- model.matrix(f, pb$samples)
   colnames(design) <- gsub(paste0("^", main_covariate), "", colnames(design))
 
@@ -289,6 +297,8 @@ de_limma <- function(x, use_assay = "counts", aggregate_by=NULL, use_existing_sf
   to_return[["params"]]$mode <- mode
   to_return[["params"]]$delim <- delim
   to_return[["params"]]$min_pct <- min_pct
+  to_return[["params"]]$formula <- paste(f, collapse = "")
+
 
   return(to_return)
 
