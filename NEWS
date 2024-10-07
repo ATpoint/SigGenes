@@ -1,7 +1,13 @@
+CHANGES IN VERSION 1.0.6
+------------------------
+
+    o retire unused argument in `de_testing()`
+
+
 CHANGES IN VERSION 1.0.5
 ------------------------
 
-    o option to use limma-trend for testing rather than default limma-voom
+    o support to use limma-trend for testing via `use_trend=TRUE`
 
 
 CHANGES IN VERSION 1.0.4

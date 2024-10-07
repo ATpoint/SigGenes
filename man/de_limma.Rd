@@ -11,7 +11,6 @@ de_limma(
   use_existing_sf = TRUE,
   main_covariate,
   other_covariates = NULL,
-  test_method = c("trend", "voom"),
   block = NULL,
   min_pct = 0,
   min_fc = 1,

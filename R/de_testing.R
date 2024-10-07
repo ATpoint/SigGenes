@@ -84,7 +84,7 @@
 #' @export
 de_limma <- function(x, use_assay = "counts", aggregate_by = NULL, use_existing_sf = TRUE,
                      main_covariate, other_covariates = NULL,
-                     test_method = c("trend", "voom"), block = NULL,
+                     block = NULL,
                      min_pct = 0, min_fc = 1.0, use_weights = FALSE,
                      mode = c("pairwise", "average"), use_trend = FALSE,
                      use_filterByExpr = FALSE, return_object = FALSE, delim = "_vs_") {
