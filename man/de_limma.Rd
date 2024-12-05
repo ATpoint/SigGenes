@@ -19,7 +19,8 @@ de_limma(
   use_trend = FALSE,
   use_filterByExpr = FALSE,
   return_object = FALSE,
-  delim = "_vs_"
+  delim = "_vs_",
+  return_confinf = FALSE
 )
 }
 \arguments{
@@ -57,9 +58,11 @@ or "average" to test each level against the average of all other levels.}
 \item{use_filterByExpr}{Logical, whether to run \code{filterByExpr} from `edgeR` for prefiltering of counts.
 This makes sense when testing for example bulk RNA-seq data.}
 
-\item{return_object}{Logical, whether to return the DGEList in the output}
+\item{return_object}{Logical, whether to return the DGEList in the output.}
 
 \item{delim}{A delimiter string used in the names of the output list.}
+
+\item{return_confinf}{Logical, whether to return 95\% confidence intervals for the logFCs.}
 }
 \description{
 Function accepts a SingleCellExperiment and expects an assay "counts" representing raw counts.

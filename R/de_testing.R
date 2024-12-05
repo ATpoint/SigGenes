@@ -34,8 +34,9 @@
 #' @param use_trend Logical, if TRUE will convert data to logCPM with edgeR first and then use limma-trend for testing.
 #' @param use_filterByExpr Logical, whether to run \code{filterByExpr} from `edgeR` for prefiltering of counts.
 #'   This makes sense when testing for example bulk RNA-seq data.
-#' @param return_object Logical, whether to return the DGEList in the output
+#' @param return_object Logical, whether to return the DGEList in the output.
 #' @param delim A delimiter string used in the names of the output list.
+#' @param return_confinf Logical, whether to return 95\% confidence intervals for the logFCs.
 #'
 #' @examples
 #' # Testing on pseudobulk level with limma-voom
@@ -87,7 +88,8 @@ de_limma <- function(x, use_assay = "counts", aggregate_by = NULL, use_existing_
                      block = NULL,
                      min_pct = 0, min_fc = 1.0, use_weights = FALSE,
                      mode = c("pairwise", "average"), use_trend = FALSE,
-                     use_filterByExpr = FALSE, return_object = FALSE, delim = "_vs_") {
+                     use_filterByExpr = FALSE, return_object = FALSE, delim = "_vs_",
+                     return_confinf = FALSE) {
   # Checks
   is_sce <- is(x, "SingleCellExperiment")
   if (!is_sce) stop("x must be a SingleCellExperiment")
@@ -267,7 +269,7 @@ de_limma <- function(x, use_assay = "counts", aggregate_by = NULL, use_existing_
       first <- s[1]
       second <- s[2]
 
-      tt <- topTreat(fit = v, coef = i, number = Inf)
+      tt <- topTreat(fit = v, coef = i, number = Inf, confint = return_confinf)
       tt <- tt[order(tt$t, decreasing = TRUE), ]
       pe <- pexp[rownames(tt), c(first, second)]
       colnames(pe) <- c("pct.1", "pct.2")
