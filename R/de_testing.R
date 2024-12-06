@@ -231,6 +231,7 @@ de_limma <- function(x, use_assay = "counts", aggregate_by = NULL, use_existing_
     aw <- NULL
     if (use_weights) {
       aw <- arrayWeights(object = lcpm, design = design)
+
     }
 
     if (!is.null(block)) {
@@ -312,6 +313,7 @@ de_limma <- function(x, use_assay = "counts", aggregate_by = NULL, use_existing_
   to_return <- SimpleList(results = de_results)
 
   if (return_object) {
+    pb$samples$weights <- aw
     to_return[["DGEList"]] <- pb
   }
 
