@@ -37,6 +37,7 @@
 #' @param return_object Logical, whether to return the DGEList in the output.
 #' @param delim A delimiter string used in the names of the output list.
 #' @param return_confinf Logical, whether to return 95\% confidence intervals for the logFCs.
+#' @param use_seed Integer, use this seed for subsampling genes to speed up duplicateCorrelation if there are more than 5000 genes
 #'
 #' @examples
 #' # Testing on pseudobulk level with limma-voom
@@ -89,7 +90,7 @@ de_limma <- function(x, use_assay = "counts", aggregate_by = NULL, use_existing_
                      min_pct = 0, min_fc = 1.0, use_weights = FALSE,
                      mode = c("pairwise", "average"), use_trend = FALSE,
                      use_filterByExpr = FALSE, return_object = FALSE, delim = "_vs_",
-                     return_confinf = FALSE) {
+                     return_confinf = FALSE, use_seed = 1) {
   # Checks
   is_sce <- is(x, "SingleCellExperiment")
   if (!is_sce) stop("x must be a SingleCellExperiment")
@@ -225,6 +226,7 @@ de_limma <- function(x, use_assay = "counts", aggregate_by = NULL, use_existing_
   if (!use_trend) {
     v <- voomLmFit(counts = pb, design = design, sample.weights = use_weights, block = blocker)
     trend <- FALSE
+    aw <- NULL # it's a weight matrix and not a per-sample numeric value
   } else {
     lcpm <- cpm(pb, log = TRUE)
 
@@ -234,9 +236,13 @@ de_limma <- function(x, use_assay = "counts", aggregate_by = NULL, use_existing_
 
     }
 
+    # If there is more than 2000 genes we randomly subsample to 2000 to speed up duplicateCorrelation
     if (!is.null(block)) {
-      if (nrow(lcpm) > 2000) {
-        spl <- sample(x = 1:nrow(lcpm), size = 2000, replace = FALSE)
+      if (nrow(lcpm) > 5000) {
+        set.seed(use_seed)
+        spl <- sample(x = 1:nrow(lcpm), size = 5000, replace = FALSE)
+      } else {
+        spl <- 1:nrow(lcpm)
       }
 
       dcor <- duplicateCorrelation(object = lcpm[spl, ], design = design, block = blocker, weights = aw)
@@ -314,6 +320,8 @@ de_limma <- function(x, use_assay = "counts", aggregate_by = NULL, use_existing_
 
   if (return_object) {
     pb$samples$weights <- aw
+    pb$design <- design
+    pb$contrasts <- contrasts
     to_return[["DGEList"]] <- pb
   }
 
