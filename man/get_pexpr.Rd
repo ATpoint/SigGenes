@@ -22,9 +22,9 @@ Calculate percentage of expression per group for each gene.
 ngenes <- 10
 nsamples <- 1000
 set.seed(1)
-data <- matrix(rnbinom(ngenes*nsamples, mu=0.5, nsamples), ncol=nsamples, byrow=TRUE)
+data <- matrix(rnbinom(ngenes * nsamples, mu = 0.5, nsamples), ncol = nsamples, byrow = TRUE)
 rownames(data) <- paste0("gene", 1:nrow(data))
-group <- rep(LETTERS[1:10], each=nsamples / 10)
+group <- rep(LETTERS[1:10], each = nsamples / 10)
 get_pexpr(data, group)
 
 # Also works on Csparse matrix

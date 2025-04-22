@@ -2,118 +2,78 @@
 % Please edit documentation in R/de_testing.R
 \name{de_limma}
 \alias{de_limma}
-\title{Differential expression analysis on single-cell or pseudobulk level using limma-voom.}
+\title{Automated differential expression via the limma package}
 \usage{
 de_limma(
   x,
   use_assay = "counts",
   aggregate_by = NULL,
-  use_existing_sf = TRUE,
+  use_directly = FALSE,
+  limma_method = c("trend", "voom"),
+  prefilter_method = c("percent_expressed", "filterByExpr", "none"),
+  mode = c("pairwise", "average"),
   main_covariate,
   other_covariates = NULL,
   block = NULL,
   min_pct = 0,
   min_fc = 1,
   use_weights = FALSE,
-  mode = c("pairwise", "average"),
-  use_trend = FALSE,
-  use_filterByExpr = FALSE,
-  return_object = FALSE,
   delim = "_vs_",
-  return_confinf = FALSE,
-  use_seed = 1
+  return_object = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{
-\item{x}{A SingleCellExperiment}
+\item{x}{A `SingleCellExperiment`}
 
-\item{use_assay}{Name of the assay representing the raw counts}
+\item{use_assay}{Name of the assay used for testing, "counts" by default}
 
-\item{aggregate_by}{Vector with names of the colData columns to aggregate by. If NULL then
-no aggregation is done prior to DE analysis.}
+\item{aggregate_by}{A character vector of column names in `colData(x)` used for pseudobulk aggregation.}
 
-\item{use_existing_sf}{Logical, whether to use the size factors from \code{sizeFactors(x)} for normalization.
-Only applies if no pseudobulk aggregation is performed. If FALSE and no pseudobulk aggregation is performed then
-normalization is done via the \code{calcNormFactors} function from `edgeR`.
-The default is TRUE as one usually does DE analysis on single-cell level after preprocessing and cluster, so normalization
-usually has already been performed. If TRUE and no size factors can be found will run library size normalization with the
-\code{librarySizeFactors} function from `scuttle`.}
+\item{use_directly}{Logical, if `TRUE`, use provided assay directly for testing. Assumes data are prefiltered and on log2 scale.}
 
-\item{main_covariate}{Name of the main covariate for the testing.}
+\item{limma_method}{Either "trend" or "voom". See details}
 
-\item{other_covariates}{Vector with other covariate names to adjust for in DE analysis.}
+\item{prefilter_method}{The prefiltering strategy, see details}
 
-\item{block}{Name of a factor to block for.}
+\item{mode}{Comparison mode, either "pairwise" (all-vs-all) or `"average"` (one-vs-avg.of.rest)}
 
-\item{min_pct}{The minimum percentage of cells in at least one of the two group levels per contrast expressing the gene (expressed means counts above 0).}
+\item{main_covariate}{The main grouping variable in `colData(x)` used for contrasts}
 
-\item{min_fc}{Minimum fold change to test against via \code{limma::treat()}.}
+\item{other_covariates}{Optional character vector of additional covariates to include in the model}
 
-\item{use_weights}{Logical, whether to use empirical sample weights in \code{edgeR::voomLmFit}}
+\item{block}{Optional blocking variable (e.g., donor ID) from `colData(x)` for limma's duplicate correlation}
 
-\item{mode}{Either "pairwise" to run all pairwise comparisons between `main_covariate` levels,
-or "average" to test each level against the average of all other levels.}
+\item{min_pct}{Numeric between 0 and 100, minimum percent expression per group required to keep a gene (used with "percent_expressed" method).}
 
-\item{use_trend}{Logical, if TRUE will convert data to logCPM with edgeR first and then use limma-trend for testing.}
+\item{min_fc}{Minimum absolute fold change threshold (non-log scale) used in `limma::treat`}
 
-\item{use_filterByExpr}{Logical, whether to run \code{filterByExpr} from `edgeR` for prefiltering of counts.
-This makes sense when testing for example bulk RNA-seq data.}
+\item{use_weights}{Logical, if `TRUE`, will estimate empirical sample weights}
 
-\item{return_object}{Logical, whether to return the DGEList in the output.}
+\item{delim}{Delimiter used to name pairwise contrasts (default: "_vs_").}
 
-\item{delim}{A delimiter string used in the names of the output list.}
+\item{return_object}{Logical, if `TRUE`, return `DGEList` object and design/contrast info as attributes. Will be the pseudobulked one if that option was chosen}
 
-\item{return_confinf}{Logical, whether to return 95\% confidence intervals for the logFCs.}
-
-\item{use_seed}{Integer, use this seed for subsampling genes to speed up duplicateCorrelation if there are more than 5000 genes}
+\item{verbose}{Logical, if `TRUE`, print progress messages}
 }
 \description{
-Function accepts a SingleCellExperiment and expects an assay "counts" representing raw counts.
-It then performs DE analysis forming all possible contrasts with limma-voom \(Law et al. 2014\), using the \code{voomLmFit} function from the `edgeR` package.
-It is similar to running \code{voom} followed by \(optionally\) \code{duplicateCorrelation} and \code{lmFit}, for details see the details section in \code{edgeR::voomLmFit}.
-DE testing is done by either contrasting all groupwise combinations, or by testing each group level vs the average of all other group levels.
-The function can optionally aggregate single-cell data into pseudobulks. The function expects one group
-to be the main covariate for testing and allows an arbitrary number of other covariates to be adjusted for. Alternatively, the user can specify a blocking
-factor, for example to account for repeated measures.
-}
-\details{
-The output is a list with DE stats per contrast. All possible contrasts are displayed, for example for groups A/B/C it's A-B, A-C, B-C, B-A, C-A, C-B. The
-individual results for identical contrasts e.g. A-B / B-A can differ if \code{min_pct} is above 0, as each list is filtered that the non-reference expresses
-the gene with more than \code{min_pct} of cells. If {min_pct} is 0 then these two lists would be the same.
+Automated differential expression via the limma package
 }
 \examples{
+
 # Testing on pseudobulk level with limma-voom
+library(SingleCellExperiment)
 set.seed(1)
-sce <- scuttle::mockSCE(ncells = 1000, ngenes = 1000, nspikes = 0)
+sce <- mockSCE(ncells = 1000, ngenes = 1000, nspikes = 0)
 sce$group <- rep(LETTERS[1:4], each = 250)
 sce$donor <- rep(LETTERS[1:4], 250)
+sizeFactors(sce) <- rnorm(ncol(sce), mean = 1, sd = .2)
+
 res_pairwise <- de_limma(
-  x = sce, aggregate_by = c("group", "donor"),
-  main_covariate = "group", other_covariates = c("donor")
+  x = sce, aggregate_by = c("group", "donor"), mode = "pairwise",
+  main_covariate = "group", other_covariates = c("donor"), limma_method = "trend"
 )
 
-res_pairwise_block <- de_limma(
-  x = sce, aggregate_by = c("group", "donor"),
-  main_covariate = "group", block = "donor"
-)
-
-res_average <- de_limma(
-  x = sce, aggregate_by = c("group", "donor"),
-  main_covariate = "group", other_covariates = c("donor"),
-  mode = "average"
-)
-
-# Testing on single-cell level with limma-trend
-res_singlecell <- de_limma(x = sce, main_covariate = "group", use_trend = TRUE)
-
-}
-\references{
-Law, CW, Chen, Y, Shi, W, Smyth, GK (2014).
-Voom: precision weights unlock linear model analysis tools for RNA-seq read counts. Genome Biology 15, R29.
-\url{doi:10.1186/gb-2014-15-2-r29}
-}
-\seealso{
-\code{\link{voom}}
 }
 \author{
 Alexander Bender
