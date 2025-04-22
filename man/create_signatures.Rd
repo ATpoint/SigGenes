@@ -48,13 +48,15 @@ so one would not expect unique genes defining this group. Can help returning mor
 Create group-specific gene signatures based on pairwise differential analysis results
 }
 \examples{
+library(SingleCellExperiment)
 set.seed(1)
-sce <- scuttle::mockSCE(ncells=1000, ngenes=1000, nspikes=0)
-sce$group <- rep(LETTERS[1:4], each=250)
+sce <- mockSCE(ncells = 1000, ngenes = 1000, nspikes = 0)
+sce$group <- rep(LETTERS[1:4], each = 250)
 sce$donor <- rep(LETTERS[1:4], 250)
+sizeFactors(sce) <- rnorm(ncol(sce), mean = 1, sd = .2)
 res_pairwise <- de_limma(x = sce, aggregate_by = c("group", "donor"),
                          main_covariate = "group", other_covariates = c("donor"))
-create_signatures <- create_signatures(x = res_pairwise, signif_threshold = .9)
+create_signatures <- create_signatures(x = res_pairwise, signif_threshold = .95)
 create_signatures
 
 }
