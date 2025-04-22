@@ -5,7 +5,7 @@
 
 test_that("de_testing works", {
   set.seed(1)
-  sce <- .mockSCE(ncells = 100, ngenes = 11, nspikes = 0)
+  sce <- mockSCE(ncells = 100, ngenes = 11, nspikes = 0)
   sce$group <- rep(LETTERS[1:4], each = 25)
   sce$donor <- rep(LETTERS[1:4], 25)
 
