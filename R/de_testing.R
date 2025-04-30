@@ -203,11 +203,11 @@ de_limma <- function(
   }
 
   # Use voom
+  aw <- NULL
   if (limma_method == "voom") {
     if (verbose) message("Running voomLmFit")
     fit <- voomLmFit(counts = y, design = design, sample.weights = use_weights, block = blocker)
   } else {
-    aw <- NULL
 
     if (use_weights) {
       if (verbose) message("Estimating sample weights")
