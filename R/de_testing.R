@@ -113,7 +113,7 @@ de_limma <- function(
   if (!is.null(aggregate_by)) {
     if (verbose) message("Running pseudobulk aggregation")
 
-    tmp <- .aggreg_pseudobulk(count_matrix = assay(x, use_assay), metadata = colData(x), aggregate_by = aggregate_by, sep = ".")
+    tmp <- SigGenes:::.aggreg_pseudobulk(count_matrix = assay(x, use_assay), metadata = colData(x), aggregate_by = aggregate_by, sep = ".")
     y <- DGEList(counts = tmp$counts, samples = data.frame(tmp$metadata, check.names = FALSE))
     rm(tmp)
     run_calc_norm_factors <- TRUE
@@ -150,10 +150,9 @@ de_limma <- function(
   }
 
   y$genes <- NULL
-  rm(x)
 
   # Make the design, always putting the main covariate first without intercept
-  design <- .make_design(main_covariate, other_covariates, y$samples)
+  design <- SigGenes:::.make_design(main_covariate, other_covariates, y$samples)
 
   # Prefiltering choices
   if (prefilter_method == "filterByExpr") {
@@ -164,7 +163,7 @@ de_limma <- function(
   pexp <- NULL
   if (prefilter_method == "percent_expressed") {
     if (verbose) message("Using percent expression for prefiltering")
-    pexp <- get_pexpr(y$counts, group = y$samples[[main_covariate]])
+    pexp <- get_pexpr(assay(x, use_assay), group = colData(x)[[main_covariate]])
 
     if (min_pct > 0) {
       keep <- apply(pexp >= min_pct, 1, sum) > 0
