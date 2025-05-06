@@ -71,8 +71,8 @@ de_limma <- function(
   }
 
   if (!is.null(other_covariates)) {
-    if (!other_covariates %in% colnames(colData(x))) {
-      stop("other_covariates not in colData(x)")
+    if (sum(!other_covariates %in% colnames(colData(x))) > 0) {
+      stop("At least one element in other_covariates not in colData(x)")
     }
   }
 
