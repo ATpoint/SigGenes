@@ -64,18 +64,28 @@ rank_degs <- function(res, delim,
       if(yy$direction=="forward"){
 
         current_contrast <- paste0(yy$first, delim, yy$second)
-
         here <- res[[current_contrast]]
-        here <- here[here$pct.1 >= min_pct,]
+        pct.at <- "pct.1"
 
       } else {
 
         current_contrast <- paste0(yy$second, delim, yy$first)
         here <- res[[current_contrast]]
         here[[effect_column]] <- here[[effect_column]] * -1
-        here <- here[here$pct.2 >= min_pct,]
+        pct.at <- "pct.2"
 
       }
+
+      if(!pct.at %in% colnames(here) & min_pct > 0){
+        stop("min_pct > 0 but pct.1/2 column does not exist")
+      }
+
+      if(!pct.at %in% colnames(here) & min_pct == 0){
+        here[[pct.at]] <- 0
+      }
+
+      here <- here[here[[pct.at]] >= min_pct,]
+
 
       h <- here[here[[signif_column]] < signif_threshold & here[[effect_column]] > effect_threshold,]
       k <- if(rank_method=="decreasing") TRUE else FALSE
