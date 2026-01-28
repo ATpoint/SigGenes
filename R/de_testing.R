@@ -113,7 +113,7 @@ de_limma <- function(
   if (!is.null(aggregate_by)) {
     if (verbose) message("Running pseudobulk aggregation")
 
-    tmp <- SigGenes:::.aggreg_pseudobulk(count_matrix = assay(x, use_assay), metadata = colData(x), aggregate_by = aggregate_by, sep = ".")
+    tmp <- .aggreg_pseudobulk(count_matrix = assay(x, use_assay), metadata = colData(x), aggregate_by = aggregate_by, sep = ".")
     y <- DGEList(counts = tmp$counts, samples = data.frame(tmp$metadata, check.names = FALSE))
     rm(tmp)
     run_calc_norm_factors <- TRUE
@@ -152,7 +152,7 @@ de_limma <- function(
   y$genes <- NULL
 
   # Make the design, always putting the main covariate first without intercept
-  design <- SigGenes:::.make_design(main_covariate, other_covariates, y$samples)
+  design <- .make_design(main_covariate, other_covariates, y$samples)
 
   # Prefiltering choices
   if (prefilter_method == "filterByExpr") {

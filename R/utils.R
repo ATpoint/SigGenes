@@ -28,7 +28,7 @@ get_pexpr <- function(data, group, threshold = 0, digits = 2) {
   if (ncol(data) != length(group)) stop("ncol(data) != length(group)")
   if (!is.numeric(threshold) | threshold < 0) stop("threshold must be numeric and > 0")
 
-  datar <- (data > threshold) * 1
+  datar <- (data >= threshold) * 1
   a <- rowsum(x = t(datar), group = group)
   b <- as.numeric(table(group)[rownames(a)])
   f <- round(100 * t(apply(a, 2, function(x) x / b)), digits = digits)
@@ -110,7 +110,7 @@ get_pexpr <- function(data, group, threshold = 0, digits = 2) {
   return(rmat)
 }
 
-# Convert size factors to edgeR-style normalizatio factors
+# Convert size factors to edgeR-style normalization factors
 .sf2nf <- function(sf, ls) {
   nf <- log(sf / ls)
   nf <- exp(nf - mean(nf))
@@ -122,20 +122,27 @@ get_pexpr <- function(data, group, threshold = 0, digits = 2) {
 #' @param metadata Data.frame with annotations
 #' @param aggregate_by Character vector indicating which columns of metadata to use
 #' @param sep String used to delimit colnames in aggregated data.frame
+#' @examples
+#' sce <- mockSCE()
+#' sce$group <- rep(c("A", "B"), ncol(sce)/2)
+#' sce$group2 <- rep(c("A", "B", "C", "D"), each = ncol(sce)/4)
+#' pb <- .aggreg_pseudobulk(count_matrix = assay(sce), metadata = colData(sce), aggregate_by = c("group", "group2"), sep = ".")
 #' @export
 .aggreg_pseudobulk <- function(count_matrix, metadata, aggregate_by, sep = ".") {
-  aggreg <- data.frame(metadata[, aggregate_by])
+  aggreg <- data.frame(metadata[, aggregate_by, drop = FALSE])
 
   aggreg_groups <- do.call(rbind, lapply(1:nrow(aggreg), function(z) {
     data.frame(
       concat = paste(aggreg[z, , drop = TRUE], collapse = sep),
-      aggreg[z, ]
+      aggreg[z,, drop = FALSE ]
     )
   }))
 
   aggregated <- t(rowsum(t(count_matrix), group = aggreg_groups$concat))
   aggreg_groups_unique <- unique(aggreg_groups)
   rownames(aggreg_groups_unique) <- aggreg_groups_unique$concat
+  tbl <- table(aggreg_groups$concat)
+  aggreg_groups_unique$ncells <- as.numeric(tbl[aggreg_groups_unique$concat])
   aggreg_groups_unique$concat <- NULL
   new_ids <- aggreg_groups_unique[colnames(aggregated), , drop = FALSE]
   l <- list(counts = aggregated, metadata = new_ids)

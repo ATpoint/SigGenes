@@ -18,3 +18,9 @@
 \description{
 Aggregate a SingleCellExperiment assay to pseudobulk sums using only base R
 }
+\examples{
+sce <- mockSCE()
+sce$group <- rep(c("A", "B"), ncol(sce)/2)
+sce$group2 <- rep(c("A", "B", "C", "D"), each = ncol(sce)/4)
+pb <- .aggreg_pseudobulk(count_matrix = assay(sce), metadata = colData(sce), aggregate_by = c("group", "group2"), sep = ".")
+}
