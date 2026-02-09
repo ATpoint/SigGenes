@@ -29,6 +29,11 @@ get_pexpr <- function(data, group, threshold = 0, digits = 2) {
   if (!is.numeric(threshold) | threshold < 0) stop("threshold must be numeric and > 0")
 
   datar <- (data >= threshold) * 1
+
+  if(is(data, "CsparseMatrix")){
+    datar <- as(datar, "CsparseMatrix")
+  }
+
   a <- rowsum(x = t(datar), group = group)
   b <- as.numeric(table(group)[rownames(a)])
   f <- round(100 * t(apply(a, 2, function(x) x / b)), digits = digits)
