@@ -2,20 +2,20 @@
 % Please edit documentation in R/de_testing.R
 \name{de_limma}
 \alias{de_limma}
-\title{Automated differential expression via the limma package}
+\title{Differential expression analysis with limma}
 \usage{
 de_limma(
   x,
   use_assay = "counts",
   aggregate_by = NULL,
   use_directly = FALSE,
-  limma_method = c("trend", "voom"),
+  limma_method = c("trend", "ordinary"),
   prefilter_method = c("percent_expressed", "filterByExpr", "none"),
   mode = c("pairwise", "average"),
   main_covariate,
   other_covariates = NULL,
-  block = NULL,
   min_pct = 0,
+  min_expr = 0,
   min_fc = 1,
   use_weights = FALSE,
   delim = "_vs_",
@@ -24,57 +24,93 @@ de_limma(
 )
 }
 \arguments{
-\item{x}{A `SingleCellExperiment`}
+\item{x}{A `SingleCellExperiment`.}
 
-\item{use_assay}{Name of the assay used for testing, "counts" by default}
+\item{use_assay}{Character scalar specifying the assay to use. Defaults to
+`"counts"`.}
 
-\item{aggregate_by}{A character vector of column names in `colData(x)` used for pseudobulk aggregation.}
+\item{aggregate_by}{Optional character vector naming columns in `colData(x)`
+used to aggregate cells into pseudobulk samples. All model covariates should
+be retained by the aggregation.}
 
-\item{use_directly}{Logical, if `TRUE`, use provided assay directly for testing. Assumes data are prefiltered and on log2 scale.}
+\item{use_directly}{Logical scalar. If `TRUE`, the selected assay is used
+directly for testing and is assumed to be prefiltered and on a log2 scale.
+Normalization and prefiltering are skipped.}
 
-\item{limma_method}{Either "trend" or "voom". See details}
+\item{limma_method}{Moderation method passed to `limma::treat`. Either
+`"trend"` to use intensity-dependent empirical Bayes moderation or
+`"ordinary"` for ordinary empirical Bayes moderation.}
 
-\item{prefilter_method}{The prefiltering strategy, see details}
+\item{prefilter_method}{Gene-filtering method. One of
+`"percent_expressed"`, `"filterByExpr"`, or `"none"`.}
 
-\item{mode}{Comparison mode, either "pairwise" (all-vs-all) or `"average"` (one-vs-avg.of.rest)}
+\item{mode}{Contrast mode. `"pairwise"` performs all pairwise comparisons.
+`"average"` compares each group against the average of all remaining
+groups.}
 
-\item{main_covariate}{The main grouping variable in `colData(x)` used for contrasts}
+\item{main_covariate}{Character scalar naming the primary grouping variable
+in `colData(x)`.}
 
-\item{other_covariates}{Optional character vector of additional covariates to include in the model}
+\item{other_covariates}{Optional character vector naming additional model
+covariates in `colData(x)`.}
 
-\item{block}{Optional blocking variable (e.g., donor ID) from `colData(x)` for limma's duplicate correlation}
+\item{min_pct}{Numeric scalar greater than or equal to zero. Minimum
+percentage of expressing cells required in at least one group when
+`prefilter_method = "percent_expressed"`.}
 
-\item{min_pct}{Numeric between 0 and 100, minimum percent expression per group required to keep a gene (used with "percent_expressed" method).}
+\item{min_expr}{Numeric scalar greater than or equal to zero. Expression
+threshold passed to `get_pexpr()`.}
 
-\item{min_fc}{Minimum absolute fold change threshold (non-log scale) used in `limma::treat`}
+\item{min_fc}{Numeric scalar greater than or equal to one. Minimum fold-change
+threshold on the non-log scale passed to `limma::treat`.}
 
-\item{use_weights}{Logical, if `TRUE`, will estimate empirical sample weights}
+\item{use_weights}{Logical scalar. If `TRUE`, sample weights are estimated
+with `limma::arrayWeights`.}
 
-\item{delim}{Delimiter used to name pairwise contrasts (default: "_vs_").}
+\item{delim}{Character scalar used to separate group names in pairwise
+contrast names. Defaults to `"_vs_"`.}
 
-\item{return_object}{Logical, if `TRUE`, return `DGEList` object and design/contrast info as attributes. Will be the pseudobulked one if that option was chosen}
+\item{return_object}{Logical scalar. If `TRUE`, the processed
+`SingleCellExperiment` is included in the returned object.}
 
-\item{verbose}{Logical, if `TRUE`, print progress messages}
+\item{verbose}{Logical scalar. If `TRUE`, progress messages are printed.}
+}
+\value{
+A `SimpleList` containing:
+\itemize{
+  \item `results`: a `SimpleList` of differential-expression tables, one per
+    contrast.
+  \item `params`: parameters and model information used for the analysis.
+  \item `sce`: the processed `SingleCellExperiment`, included only when
+    `return_object = TRUE`.
+}
 }
 \description{
-Automated differential expression via the limma package
+Performs differential expression analysis on a `SingleCellExperiment` using
+limma. The input may be aggregated to pseudobulk samples, converted from
+counts to log2 counts per million, or used directly when the selected assay
+already contains prefiltered log2-scale expression values.
+}
+\details{
+Pairwise comparisons test every level of `main_covariate` against every other
+level. Average comparisons test each level against the average of all
+remaining levels.
 }
 \examples{
-
-# Testing on pseudobulk level with limma-voom
 library(SingleCellExperiment)
+
 set.seed(1)
 sce <- mockSCE(ncells = 1000, ngenes = 1000, nspikes = 0)
 sce$group <- rep(LETTERS[1:4], each = 250)
 sce$donor <- rep(LETTERS[1:4], 250)
-sizeFactors(sce) <- rnorm(ncol(sce), mean = 1, sd = .2)
 
-res_pairwise <- de_limma(
-  x = sce, aggregate_by = c("group", "donor"), mode = "pairwise",
-  main_covariate = "group", other_covariates = c("donor"), limma_method = "trend"
+res <- de_limma(
+  x = sce,
+  aggregate_by = c("group", "donor"),
+  main_covariate = "group",
+  other_covariates = "donor",
+  limma_method = "trend",
+  mode = "pairwise"
 )
 
-}
-\author{
-Alexander Bender
 }

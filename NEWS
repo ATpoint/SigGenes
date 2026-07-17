@@ -1,3 +1,9 @@
+CHANGES IN VERSION 1.2.0
+
+    o Major AI overhaul improving efficiency, speed, documentation
+    o de_limma now only uses either trend or ordinary analysis, so no voom.
+    o Lot of small and large bug fixes
+
 CHANGES IN VERSION 1.1.6
 
     o Fix a bug in get_pexpr that came up in recent R versions for CsparseMatrix

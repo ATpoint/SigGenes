@@ -1,6 +1,5 @@
 # SigGenes
   
-SigGenes automates pairwise differential testing between groups and extraction of signatures.
-Documentation will follow. Use at own risk, no warranty. 
+SigGenes is an R package for automated differential expression analysis and signature generation from bulk and single-cell RNA-seq data. It provides a streamlined workflow based on limma that minimizes boilerplate code while retaining flexibility for complex experimental designs.
 
-Documentation will follow. 
+Developed for personal/internal use, no warranty or support for the general public.

@@ -111,6 +111,7 @@ rank_degs <- function(res, delim,
 #' @author Alexander Bender
 #' @keywords internal
 #' @importFrom utils head
+#' @importFrom stats median
 #' @inheritParams create_signatures
 #'
 ranks2signatures <- function(ranked, min_prop, n, exclude_groups){

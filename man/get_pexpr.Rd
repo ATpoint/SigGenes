@@ -2,33 +2,48 @@
 % Please edit documentation in R/utils.R
 \name{get_pexpr}
 \alias{get_pexpr}
-\title{Calculate percentage of expression per group for each gene.}
+\title{Percentage of expressing cells per group}
 \usage{
 get_pexpr(data, group, threshold = 0, digits = 2)
 }
 \arguments{
-\item{data}{Numeric data.frame, matrix or similar with rows being genes/observations and columns being cells/samples.}
+\item{data}{Numeric matrix-like object with genes or observations in rows and
+cells or samples in columns. Dense matrices, data frames, and sparse
+\code{Matrix} objects are supported.}
 
-\item{group}{Vector of length \code{ncol(data)} with group information}
+\item{group}{Vector of length \code{ncol(data)} defining the group of each
+column.}
 
-\item{threshold}{Consider counts above this threshold as "expressed"}
+\item{threshold}{Non-negative expression threshold. When \code{threshold = 0},
+values greater than zero are considered expressed. Otherwise, values greater
+than or equal to \code{threshold} are considered expressed.}
 
-\item{digits}{Round percentage to this digit}
+\item{digits}{Number of decimal places used to round percentages.}
+}
+\value{
+A numeric matrix with genes or observations in rows, groups in
+  columns, and percentages as values.
 }
 \description{
-Calculate percentage of expression per group for each gene.
+Calculates, for each gene or observation, the percentage of cells or samples
+in each group that meet the expression threshold.
 }
 \examples{
 ngenes <- 10
 nsamples <- 1000
+
 set.seed(1)
-data <- matrix(rnbinom(ngenes * nsamples, mu = 0.5, nsamples), ncol = nsamples, byrow = TRUE)
-rownames(data) <- paste0("gene", 1:nrow(data))
+data <- matrix(
+  rnbinom(ngenes * nsamples, size = 1, mu = 0.5),
+  nrow = ngenes
+)
+rownames(data) <- paste0("gene", seq_len(ngenes))
 group <- rep(LETTERS[1:10], each = nsamples / 10)
+
 get_pexpr(data, group)
 
-# Also works on Csparse matrix
-data_sparse <- as(data, "CsparseMatrix")
+# Sparse matrices are also supported
+data_sparse <- Matrix::Matrix(data, sparse = TRUE)
 get_pexpr(data_sparse, group)
 
 }
