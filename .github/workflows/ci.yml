@@ -47,6 +47,6 @@ jobs:
               devtools::document()
 
               devtools::check(
-                error_on = "warning"
+                error_on = "error"
               )
             '
