@@ -41,7 +41,7 @@ jobs:
 
               BiocManager::install(
                 c("edgeR", "limma", "Matrix", "S4Vectors", "SingleCellExperiment", "SummarizedExperiment", "devtools", "remotes", "testthat"), 
-                ask = FALSE, update = FALSE)
+                ask = FALSE, update = FALSE
               )
 
               devtools::document()
