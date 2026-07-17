@@ -39,8 +39,10 @@ jobs:
                 c("devtools", "testthat"), ask = FALSE, update = FALSE
               )
 
-              install.packages("pak", repos = "https://cloud.r-project.org", dependencies = TRUE, upgrade = "never")
-              pak::local_install_deps()
+              BiocManager::install(
+                c("edgeR", "limma", "Matrix", "S4Vectors", "SingleCellExperiment", "SummarizedExperiment", "devtools", "remotes", "testthat"), 
+                ask = FALSE, update = FALSE)
+              )
 
               devtools::document()
 
