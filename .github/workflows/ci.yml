@@ -39,10 +39,8 @@ jobs:
                 c("devtools", "testthat"), ask = FALSE, update = FALSE
               )
 
-              install.packages("remotes", repos = "https://cloud.r-project.org", dependencies = TRUE, upgrade = "never")
-              devtools::install_deps(
-                dependencies = TRUE, upgrade = "never"
-              )
+              install.packages("pak", repos = "https://cloud.r-project.org", dependencies = TRUE, upgrade = "never")
+              pak::local_install_deps()
 
               devtools::document()
 
