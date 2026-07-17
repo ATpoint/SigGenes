@@ -39,7 +39,7 @@ jobs:
                 c("devtools", "testthat"), ask = FALSE, update = FALSE
               )
 
-              install.pacakges("remotes")
+              install.packages("remotes")
               devtools::install_deps(
                 dependencies = TRUE, upgrade = "never"
               )
