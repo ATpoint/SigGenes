@@ -191,7 +191,7 @@ de_limma <- function(
     keep <- filterByExpr(assay(y, "main"), design = design)
   }
 
-  if (prefilter_method == "percent_expressed") {
+  if (prefilter_method == "percent_expressed" | min_pct > 0) {
     if(verbose) message("Run prefiltering")
     pexp <- get_pexpr(data = assay(x, use_assay), group = colData(x)[[main_covariate]], threshold = min_expr, digits = 2)
     keep <- rowSums(pexp >= min_pct) > 0
@@ -250,7 +250,7 @@ de_limma <- function(
     tt <- topTreat(fit, coef = i, number = Inf, confint = TRUE)
     tt <- tt[order(tt$t, decreasing = TRUE), , drop = FALSE]
 
-    if (prefilter_method == "percent_expressed") {
+    if (prefilter_method == "percent_expressed" | min_pct > 0) {
 
       if (mode == "pairwise") {
 
